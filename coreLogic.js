@@ -9,10 +9,13 @@ async function task() {
     'confirmed',
   );
 
+  // initialize the history as array if not exists
+  if (!namespaceWrapper.storeGet('history')) namespaceWrapper.storeSet('history', [])
+
   // fetch node list
   // let nodeList = connection.; // TODO - add web3.js call to fetch validator list here
   let nodeList = connection.getClusterNodes(); // [{ id : "laksjdlsaksljdklaskj", address : "123.543.222.234" }]
-  namespaceWrapper.storeSet('nodes', nodeList)
+  safeLevelDbUpdate('nodes', nodeList)
 
   nodeList.forEach( async (node) => {
     /* ping each node and check 
@@ -39,10 +42,34 @@ async function task() {
     nodeData.signature = "signature"; // TODO - add signature + hash with slot # 
 
     // update levelDb for the node
-    namespaceWrapper.storeSet(node.id, nodeData);
+    safeLevelDbUpdate(node.id, nodeData);
   })
   
 }
+
+/*
+  safelevelDbUpdate
+   - Pushes old data into a 'history' array which can be retrieve for diagnostics
+ */
+async function safeLevelDbUpdate(key, value) {
+  // get current value
+  let current = namespaceWrapper.storeGet(key)
+
+  // if current value exists, add it to the master history
+  let oldHistory = namespaceWrapper.storeGet('history')
+  let newHistory = () => {
+    // this condition truncates the history to the most recent 50 records to prevent overflow
+    if (oldHistory.length > 50) oldHistory.splice(0, (oldHistory.length - 51))
+    oldHistory.push([key, current])
+  }
+  if (current) namespaceWrapper.storeSet('history', newHistory)
+
+  // store the new value
+  namespaceWrapper.storeSet(key, value)
+
+  return;
+}
+
 async function fetchSubmission(){
   // Write the logic to fetch the submission values here and return the cid string
 

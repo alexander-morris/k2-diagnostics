@@ -29,7 +29,7 @@ const generateReport = async () => {
     nodes : namespaceWrapper.storeGet('nodes'),
     history : {},
     healthChecks : [],
-    roundData : []
+    roundData : await getRoundData()
   }
 
   report.nodes.forEach( async (node) => {
@@ -43,6 +43,26 @@ const generateReport = async () => {
   })
 
   return report;
+}
+
+async function getRoundData () {
+  let currentRound = namespaceWrapper.getRound();
+  let pastRounds = [];
+
+  // roundData is being stored every time there's a call to submissionOnChain or uploadDistributionList in the namespacewrapper
+  for ( var i = currentRound - 5; i < currentRound; i++) {
+    if (i >= 0) {
+      let roundI = {
+        submission : await namespaceWrapper.storeGet(`round-${i}-submission`),
+        distribution : await namespaceWrapper.storeGet(`round-${i}-distribution`)
+      }
+      pastRounds.push(roundI)
+    }
+  }
+  return {
+    currentRound : currentRound,
+    pastRounds : pastRounds
+  }
 }
 
 module.exports = {

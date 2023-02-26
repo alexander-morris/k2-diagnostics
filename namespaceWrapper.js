@@ -43,6 +43,14 @@ class NamespaceWrapper {
   }
 
   async submissionOnChain(submitterKeypair, submission) {
+
+    // this line adds a diagnostics payload to levelDb
+    this.storeSet(`round-${round}-submission`, {
+      submission : submission,
+      submittedAt : new Date(),
+      slot : await this.getSlot()
+    })
+
     return await genericHandler(
       "submissionOnChain",
       submitterKeypair,
@@ -158,6 +166,12 @@ class NamespaceWrapper {
   }
 
   async uploadDistributionList(distributionList, round) {
+    // this line adds a diagnostics payload to levelDb
+    this.storeSet(`round-${round}-distribution`, {
+      distributionSubmitted : distributionList,
+      submittedAt : new Date(),
+      slot : await this.getSlot()
+    })
     return await genericHandler("uploadDistributionList", distributionList, round);
   }
 
@@ -365,6 +379,7 @@ async function genericHandler(...args) {
     return null;
   }
 }
+
 let connection;
 const namespaceWrapper = new NamespaceWrapper();
 namespaceWrapper.getRpcUrl().then((rpcUrl) => {
