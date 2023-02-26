@@ -14,8 +14,8 @@
       network: '20'
     },
     timers : {
-        roundTime : 180000,
-        auditWindow : 50000,
-        submissionWindow : 50000
+        roundTime : 18000,
+        auditWindow : 5000,
+        submissionWindow : 5000
     }
 }

@@ -20,13 +20,19 @@ async function task() {
       slot #
       epoch #
     */
+
+    // establish a new connection to this particular K2 node
+    let newConnection = new web3.Connection(
+      web3.clusterApiUrl(node.address), // TODO - unclear if this works
+      'confirmed',
+    );
   
     // get account info
     let nodeData = {
-      account : await connection.getAccountInfo(namespaceWrapper.publicKey),
-      slot_id : await connection.getSlot(),
-      timestamp : await connection.getBlockTime(slot),
-      epoch : await connection.getEpochInfo()
+      account : await newConnection.getAccountInfo(namespaceWrapper.publicKey),
+      slot_id : await newConnection.getSlot(),
+      timestamp : await newConnection.getBlockTime(slot),
+      epoch : await newConnection.getEpochInfo()
     }
 
     // generate proof using local signature and add it to the node object
