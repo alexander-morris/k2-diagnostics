@@ -15,7 +15,7 @@ const app = express();
 console.log('SETTING UP EXPRESS', NODE_MODE);
 app.get('/', async (req, res) => {
   let k2_diagnostics_report = await generateReport();
-  res.send(k2_diagnostics_report);
+  res.status(200).send(k2_diagnostics_report);
 });
 
 app.listen(EXPRESS_PORT, () => {
@@ -28,7 +28,8 @@ const generateReport = async () => {
   let report = {
     nodes : namespaceWrapper.storeGet('nodes'),
     history : {},
-    healthChecks : []
+    healthChecks : [],
+    roundData : []
   }
 
   report.nodes.forEach( async (node) => {

@@ -11,7 +11,7 @@ async function task() {
 
   // fetch node list
   // let nodeList = connection.; // TODO - add web3.js call to fetch validator list here
-  let nodeList = [{ id : "laksjdlsaksljdklaskj", address : "123.543.222.234" }]
+  let nodeList = connection.getClusterNodes(); // [{ id : "laksjdlsaksljdklaskj", address : "123.543.222.234" }]
   namespaceWrapper.storeSet('nodes', nodeList)
 
   nodeList.forEach( async (node) => {
@@ -23,7 +23,7 @@ async function task() {
 
     // establish a new connection to this particular K2 node
     let newConnection = new web3.Connection(
-      web3.clusterApiUrl(node.address), // TODO - unclear if this works
+      web3.clusterApiUrl(node.rpc), // TODO - unclear if this works
       'confirmed',
     );
   
@@ -66,7 +66,7 @@ async function generateDistributionList(round){
     const submissions_audit_trigger =
                   taskAccountDataJSON.submissions_audit_trigger[round];
     if (submissions == null) {
-      console.log("No submisssions found in N-2 round");
+      console.log("No submissions found in N-2 round");
       return distributionList;
     } else {
       const keys = Object.keys(submissions);
