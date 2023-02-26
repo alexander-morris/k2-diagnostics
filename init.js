@@ -27,14 +27,17 @@ const generateReport = async () => {
 
   let report = {
     nodes : namespaceWrapper.storeGet('nodes'),
-    history : {},
+    leader : {}, // contains leader info
     healthChecks : [],
-    roundData : await getRoundData()
+    roundData : await getRoundData(),
+    reportTime : new Date ()
   }
 
   report.nodes.forEach( async (node) => {
     let nodeData = await namespaceWrapper.storeGet(node.id)
-    if (nodeData.is_leader) report.history = {
+    if (nodeData.is_leader) report.leader = {
+      pubkey : nodeData.pubkey,
+      rpc : nodeData.rpc,
       epoch : nodeData.epoch,
       time : nodeData.timestamp,
       last_slot : nodeData.slot_id

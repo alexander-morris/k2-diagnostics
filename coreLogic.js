@@ -24,25 +24,31 @@ async function task() {
       epoch #
     */
 
-    // establish a new connection to this particular K2 node
-    let newConnection = new web3.Connection(
-      web3.clusterApiUrl(node.rpc), // TODO - unclear if this works
-      'confirmed',
-    );
-  
     // get account info
     let nodeData = {
-      account : await newConnection.getAccountInfo(namespaceWrapper.publicKey),
-      slot_id : await newConnection.getSlot(),
-      timestamp : await newConnection.getBlockTime(slot),
-      epoch : await newConnection.getEpochInfo()
+      pubkey : node.pubkey,
+      rpc : node.rpc,
+      version : node.version
+    }
+
+    // establish a new connection to this particular K2 node
+    if (node.rpc) {
+      let newConnection = new web3.Connection(
+        web3.clusterApiUrl(node.rpc), // TODO - unclear if this works
+        'confirmed',
+      );
+    
+      nodeData.account = await newConnection.getAccountInfo(namespaceWrapper.publicKey)
+      nodeData.slot_id = await newConnection.getSlot()
+      nodeData.timestamp = await newConnection.getBlockTime(slot)
+      nodeData.epoch = await newConnection.getEpochInfo()
     }
 
     // generate proof using local signature and add it to the node object
     nodeData.signature = "signature"; // TODO - add signature + hash with slot # 
 
     // update levelDb for the node
-    safeLevelDbUpdate(node.id, nodeData);
+    safeLevelDbUpdate(node.pubkey, nodeData);
   })
   
 }
