@@ -27,7 +27,7 @@ const generateReport = async () => {
 
   let report = {
     nodes : namespaceWrapper.storeGet('nodes'),
-    leader : {}, // contains leader info
+    leader : {}, // contains leader info if available
     healthChecks : [],
     roundData : await getRoundData(),
     reportTime : new Date ()
@@ -35,14 +35,11 @@ const generateReport = async () => {
 
   report.nodes.forEach( async (node) => {
     let nodeData = await namespaceWrapper.storeGet(node.id)
-    if (nodeData.is_leader) report.leader = {
-      pubkey : nodeData.pubkey,
-      rpc : nodeData.rpc,
-      epoch : nodeData.epoch,
-      time : nodeData.timestamp,
-      last_slot : nodeData.slot_id
+    if (nodeData.is_leader) { 
+      report.leader = nodeData
+    } else {
+      report.healthChecks.push(nodeData)
     }
-    report.healthChecks.push(nodeData)
   })
 
   return report;

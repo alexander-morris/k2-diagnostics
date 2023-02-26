@@ -42,6 +42,9 @@ async function task() {
       nodeData.slot_id = await newConnection.getSlot()
       nodeData.timestamp = await newConnection.getBlockTime(slot)
       nodeData.epoch = await newConnection.getEpochInfo()
+      nodeData.leaderSchedule = await newConnection.getLeaderSchedule()
+
+      // TODO - parse this and set nodeData.isLeader = true for the correct node 
     }
 
     // generate proof using local signature and add it to the node object
