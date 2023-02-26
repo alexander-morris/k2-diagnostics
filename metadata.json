@@ -1,0 +1,15 @@
+{
+    name: 'K2 Diagnostics',
+    description: 'Checks the K2 Network to confirm proper functioning and document uptime.',
+    author: 'al_koii',
+    githubURL: 'https://github.com/alexander-morris/k2-diagnostics',
+    imageURL: 'image.png',
+    createdAt: '',
+    nodeSpec: {
+      storage: '',
+      cpu: '4',
+      memory: '8',
+      os: [ 'Linux', 'Windows', 'MacOS' ],
+      network: '20'
+    }
+}
