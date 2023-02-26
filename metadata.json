@@ -5,11 +5,17 @@
     githubURL: 'https://github.com/alexander-morris/k2-diagnostics',
     imageURL: 'image.png',
     createdAt: '',
+    roundTime : 
     nodeSpec: {
       storage: '',
       cpu: '4',
       memory: '8',
       os: [ 'Linux', 'Windows', 'MacOS' ],
       network: '20'
+    },
+    timers : {
+        roundTime : 180000,
+        auditWindow : 50000,
+        submissionWindow : 50000
     }
 }
