@@ -43,19 +43,33 @@ class NamespaceWrapper {
   }
 
   async submissionOnChain(submitterKeypair, submission) {
+    let status;
+    try {
+      let result = await genericHandler(
+        "submissionOnChain",
+        submitterKeypair,
+        submission
+      );
+      status = {
+        result : "success",
+        data : result
+      }
+    } catch (err) {
+      status = {
+        result : "failed",
+        data : err
+      }
+    }  
 
     // this line adds a diagnostics payload to levelDb
     this.storeSet(`round-${round}-submission`, {
       submission : submission,
       submittedAt : new Date(),
-      slot : await this.getSlot()
+      slot : await this.getSlot(),
+      status : status
     })
 
-    return await genericHandler(
-      "submissionOnChain",
-      submitterKeypair,
-      submission
-    );
+    return result;
   }
 
   async stakeOnChain(
@@ -167,12 +181,27 @@ class NamespaceWrapper {
 
   async uploadDistributionList(distributionList, round) {
     // this line adds a diagnostics payload to levelDb
+    let status;
+    try {
+      let result = await genericHandler("uploadDistributionList", distributionList, round);
+      status = {
+        result : "success",
+        data : result
+      }
+    } catch (err) {
+      status = {
+        result : "failed",
+        data : err
+      }
+    }  
+
     this.storeSet(`round-${round}-distribution`, {
       distributionSubmitted : distributionList,
       submittedAt : new Date(),
-      slot : await this.getSlot()
+      slot : await this.getSlot(),
+      status : status
     })
-    return await genericHandler("uploadDistributionList", distributionList, round);
+    return result;
   }
 
   async distributionListSubmissionOnChain(round) {
