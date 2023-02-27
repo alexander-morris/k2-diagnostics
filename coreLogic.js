@@ -1,6 +1,7 @@
 const { namespaceWrapper } = require("./namespaceWrapper");
 
 let connection;
+let maxHistorySize = 100; // the max number of historical levelDb records in the healthcheck list
 
 async function task() {
   // open RPC connection to get node list
@@ -14,14 +15,14 @@ async function task() {
 
   // fetch node list
   // let nodeList = connection.; // TODO - add web3.js call to fetch validator list here
-  let nodeList = connection.getClusterNodes(); // [{ id : "laksjdlsaksljdklaskj", address : "123.543.222.234" }]
+  let nodeList = connection.getClusterNodes(); // [{ pubkey : "laksjdlsaksljdklaskj", rpc : "123.543.222.234" }]
   safeLevelDbUpdate('nodes', nodeList)
 
   nodeList.forEach( async (node) => {
     /* ping each node and check 
-      balance of this task account
-      slot #
-      epoch #
+      a. balance of this task account
+      b. slot #
+      c. epoch #
     */
 
     // get account info
@@ -58,21 +59,23 @@ async function task() {
 
 /*
   safelevelDbUpdate
-   - Pushes old data into a 'history' array which can be retrieve for diagnostics
+   - Pushes old data into a 'history' array which can be retrieved for diagnostics
  */
 async function safeLevelDbUpdate(key, value) {
   // get current value
   let current = namespaceWrapper.storeGet(key)
 
   // if current value exists, add it to the master history
-  let oldHistory = namespaceWrapper.storeGet('history')
-  let newHistory = () => {
-    // this condition truncates the history to the most recent 50 records to prevent overflow
-    if (oldHistory.length > 50) oldHistory.splice(0, (oldHistory.length - 51))
-    oldHistory.push([key, current])
+  let history = namespaceWrapper.storeGet('history')
+  
+  // this condition truncates the history to the most recent 50 records to prevent overflow
+  if (history.length > maxHistorySize) {
+    history.splice(0, (history.length - 1 - maxHistorySize)) 
   }
-  if (current) namespaceWrapper.storeSet('history', newHistory)
-
+  history.push([key, current])
+  
+  namespaceWrapper.storeSet('history', history)
+  
   // store the new value
   namespaceWrapper.storeSet(key, value)
 
