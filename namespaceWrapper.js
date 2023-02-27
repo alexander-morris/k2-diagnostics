@@ -87,12 +87,36 @@ class NamespaceWrapper {
     );
   }
   async claimReward(stakePotAccount, beneficiaryAccount, claimerKeypair) {
-    return await genericHandler(
-      "claimReward",
-      stakePotAccount,
-      beneficiaryAccount,
-      claimerKeypair
-    );
+    let status;
+    try {
+      let result =  await genericHandler(
+        "claimReward",
+        stakePotAccount,
+        beneficiaryAccount,
+        claimerKeypair
+      );
+      status = {
+        result : "success",
+        data : result
+      }
+    } catch (err) {
+      status = {
+        result : "failed",
+        data : err
+      }
+    }  
+    // this line adds a diagnostics payload to levelDb
+    this.storeSet(`round-${round}-claimReward`, {
+      submission : {
+        stakePotAccount,
+        beneficiaryAccount,
+        claimerKeypair
+      },
+      submittedAt : new Date(),
+      slot : await this.getSlot(),
+      status : status
+    })
+    return result;
   }
   async sendTransaction(serviceNodeAccount, beneficiaryAccount, amount) {
     return await genericHandler(
@@ -144,13 +168,45 @@ class NamespaceWrapper {
   }
 
   async auditSubmission(candidatePubkey, isValid, voterKeypair, round) {
-    return await genericHandler(
-      "auditSubmission",
-      candidatePubkey,
-      isValid,
-      voterKeypair, 
-      round
-    );
+    let status;
+    try {
+      let result =  await genericHandler(
+        "auditSubmission",
+        candidatePubkey,
+        isValid,
+        voterKeypair, 
+        round
+      );
+      status = {
+        result : "success",
+        data : result
+      }
+    } catch (err) {
+      status = {
+        result : "failed",
+        data : err
+      }
+    }  
+    // the following lines add a diagnostics payload to levelDb
+    // audits can happen more than once per round, so we need to store an array.
+    let audits = [];
+    if ( result.length > 0) {
+      audits = this.storeGet(`round-${round}-audits`)
+    } 
+    // add the new audit to the array
+    audits.push({
+      submission : {
+        candidatePubkey,
+        isValid,
+        voterKeypair, 
+        round
+      },
+      submittedAt : new Date(),
+      slot : await this.getSlot(),
+      status : status
+    })
+    this.storeSet(`round-${round}-audits`, audits)
+    return result;
   }
 
   async distributionListAuditSubmission(

@@ -54,7 +54,9 @@ async function getRoundData () {
     if (i >= 0) {
       let roundI = {
         submission : await namespaceWrapper.storeGet(`round-${i}-submission`),
-        distribution : await namespaceWrapper.storeGet(`round-${i}-distribution`)
+        distribution : await namespaceWrapper.storeGet(`round-${i}-distribution`),
+        audits : await namespaceWrapper.storeGet(`round-${i}-audits`),
+        claimReward : await namespaceWrapper.storeGet(`round-${i}-claimReward`)
       }
       pastRounds.push(roundI)
     }
